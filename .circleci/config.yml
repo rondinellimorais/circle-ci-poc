@@ -18,4 +18,4 @@ workflows:
           filters:
             branches:
               only:
-                - /^release/*.*.*
+                - /^release\/[0-9]\.[0-9]\.[0-9]
