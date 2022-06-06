@@ -1,0 +1,10 @@
+server {
+  listen $PORT default_server;
+  root   /usr/share/nginx/html;
+  index  index.html;
+
+  location / {
+    # any route that doesn't have a file extension (e.g. /gallery)
+    try_files $uri $uri/ /index.html;
+  }
+}

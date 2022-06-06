@@ -1,0 +1,8 @@
+version: "3.9"
+services:
+  webapp:
+    container_name: webapp
+    image: banqi/circleci-poc:latest
+    build: .
+    ports:
+      - 9090:80
