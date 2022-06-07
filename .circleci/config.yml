@@ -30,16 +30,14 @@ workflows:
   pipeline:
     jobs:
       - build:
-          filters:
+          filters: &filters
             branches:
               only:
                 - /^release\/[0-9]\.[0-9]\.[0-9]/
       - slack/on-hold:
           context: slack-secrets
           mentions: '<@U01A5Q0657U>, @rondinellimorais'
-          filters:
-            branches:
-              only: /^release\/[0-9]\.[0-9]\.[0-9]/
+          filters: *filters
           requires:
             - build
       - wait-for-approval:
