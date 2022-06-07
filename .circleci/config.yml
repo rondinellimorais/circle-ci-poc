@@ -3,28 +3,50 @@
 version: 2.1
 orbs:
   slack: circleci/slack@4.1
+  heroku: circleci/heroku@1.2.6
 
 jobs:
   build:
     docker:
-      - image: cimg/base:stable
+      - image: cimg/node:14.17.0
     steps:
       - checkout
       - run:
-          name: "Build"
-          command: "echo Hello, World!"
+          name: "Install dependencies"
+          command: yarn
+      
+      - run:
+          name: "Build for production"
+          command: yarn build
+
+      - persist_to_workspace:
+          root: .
+          paths:
+            - build
+            - nginx.conf
+            - default.conf.template
+            - Dockerfile
+            - Dockerfile
+            - heroku.yml
 
   deploy:
-    docker:
-      - image: cimg/base:stable
+    machine: true
     steps:
-      - checkout
       - slack/notify:
           event: fail
           template: basic_fail_1
       - slack/notify:
           event: pass
           template: success_tagged_deploy_1
+      - heroku/install
+      - attach_workspace:
+          at: .
+      - run:
+          name: "Deploy"
+          command: |
+            heroku container:login
+            heroku container:push web -a ${HEROKU_APP_NAME}
+            heroku container:release web -a ${HEROKU_APP_NAME}
 
 workflows:
   pipeline:
