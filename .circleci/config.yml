@@ -21,11 +21,9 @@ jobs:
       - checkout
       - slack/notify:
           event: fail
-          mentions: '@rondinellimorais'
           template: basic_fail_1
       - slack/notify:
           event: pass
-          mentions: '@rondinellimorais'
           template: success_tagged_deploy_1
 
 workflows:
@@ -38,23 +36,24 @@ workflows:
                 - /^release\/[0-9]\.[0-9]\.[0-9]/
       - slack/on-hold:
           context: slack-secrets
+          mentions: '<@U01A5Q0657U>, @rondinellimorais'
           filters:
             branches:
               only: /^release\/[0-9]\.[0-9]\.[0-9]/
           requires:
             - build
-      - pause_workflow:
+      - hold_for_approval:
+          type: approval
           filters:
             branches:
               only: /^release\/[0-9]\.[0-9]\.[0-9]/
           requires:
             - build
             - slack/on-hold
-          type: approval
       - deploy:
           context: slack-secrets
           filters:
             branches:
               only: /^release\/[0-9]\.[0-9]\.[0-9]/
           requires:
-            - pause_workflow
+            - hold_for_approval
