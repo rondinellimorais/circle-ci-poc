@@ -42,7 +42,7 @@ workflows:
               only: /^release\/[0-9]\.[0-9]\.[0-9]/
           requires:
             - build
-      - hold_for_approval:
+      - wait-for-approval:
           type: approval
           filters:
             branches:
@@ -56,4 +56,4 @@ workflows:
             branches:
               only: /^release\/[0-9]\.[0-9]\.[0-9]/
           requires:
-            - hold_for_approval
+            - wait-for-approval
