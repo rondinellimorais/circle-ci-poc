@@ -4,6 +4,12 @@ version: 2.1
 orbs:
   slack: circleci/slack@4.1
 
+aliases:
+  - &filters
+      filters:
+        branches:
+          only: /^release\/[0-9]\.[0-9]\.[0-9]/
+
 jobs:
   build:
     docker:
@@ -30,30 +36,21 @@ workflows:
   pipeline:
     jobs:
       - build:
-          filters:
-            branches:
-              only:
-                - /^release\/[0-9]\.[0-9]\.[0-9]/
+          *filters
       - slack/on-hold:
+          *filters
           context: slack-secrets
           mentions: '<@U01A5Q0657U>, @rondinellimorais'
-          filters:
-            branches:
-              only: /^release\/[0-9]\.[0-9]\.[0-9]/
           requires:
             - build
       - hold_for_approval:
+          *filters
           type: approval
-          filters:
-            branches:
-              only: /^release\/[0-9]\.[0-9]\.[0-9]/
           requires:
             - build
             - slack/on-hold
       - deploy:
+          *filters
           context: slack-secrets
-          filters:
-            branches:
-              only: /^release\/[0-9]\.[0-9]\.[0-9]/
           requires:
             - hold_for_approval
