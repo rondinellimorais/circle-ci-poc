@@ -1,21 +1,58 @@
 # Use the latest 2.1 version of CircleCI pipeline process engine.
 # See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
+orbs:
+  slack: circleci/slack@4.1
+
 jobs:
-  say-hello:
+  build:
     docker:
       - image: cimg/base:stable
     steps:
       - checkout
       - run:
-          name: "Say hello"
+          name: "Build"
           command: "echo Hello, World!"
+
+  deploy:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - slack/notify:
+          event: fail
+          mentions: '<!rondinellimorais>'
+          template: basic_fail_1
+      - slack/notify:
+          event: pass
+          template: success_tagged_deploy_1
 
 workflows:
   pipeline:
     jobs:
-      - say-hello:
+      - build:
           filters:
             branches:
               only:
                 - /^release\/[0-9]\.[0-9]\.[0-9]/
+      - slack/on-hold:
+          context: slack-secrets
+          filters:
+            branches:
+              only: /^release\/[0-9]\.[0-9]\.[0-9]/
+          requires:
+            - say-hello
+      - pause_workflow:
+          filters:
+            branches:
+              only: /^release\/[0-9]\.[0-9]\.[0-9]/
+          requires:
+            - say-hello
+            - slack/on-hold
+          type: approval
+      - deploy:
+          filters:
+            branches:
+              only: /^release\/[0-9]\.[0-9]\.[0-9]/
+          requires:
+            - pause_workflow
