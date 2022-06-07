@@ -41,13 +41,13 @@ workflows:
             branches:
               only: /^release\/[0-9]\.[0-9]\.[0-9]/
           requires:
-            - say-hello
+            - build
       - pause_workflow:
           filters:
             branches:
               only: /^release\/[0-9]\.[0-9]\.[0-9]/
           requires:
-            - say-hello
+            - build
             - slack/on-hold
           type: approval
       - deploy:
