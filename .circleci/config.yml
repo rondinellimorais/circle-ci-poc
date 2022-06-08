@@ -11,9 +11,9 @@ jobs:
       - image: cimg/node:14.17.0
     steps:
       - checkout
-      # - run:
-      #     name: "Install dependencies"
-      #     command: yarn
+      - run:
+          name: "Install dependencies"
+          command: yarn
       - run:
           name: "Build for production"
           command: yarn build
@@ -26,9 +26,14 @@ jobs:
             - Dockerfile
             - Dockerfile
             - heroku.yml
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
+
+  upload-artifacts:
+    machine: true
+    steps:
+      - attach_workspace:
+          at: .
+      - store_artifacts:
+          path: .
 
   deploy:
     machine: true
@@ -55,9 +60,6 @@ jobs:
       - run:
           name: "E2E Testing"
           command: "echo Hello, World!"
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
 
 workflows:
   pipeline:
@@ -67,6 +69,10 @@ workflows:
             branches:
               only:
                 - /^release\/[0-9]\.[0-9]\.[0-9]/
+      - upload-artifacts:
+          filters: *filters
+          requires:
+              - build
       - e2e-test:
           filters: *filters
           requires:
