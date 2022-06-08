@@ -77,7 +77,6 @@ workflows:
           filters: *filters
           requires:
             - upload-artifacts
-            - build
       - slack/on-hold:
           context: slack-secrets
           mentions: '<@U01A5Q0657U>, @rondinellimorais'
