@@ -76,6 +76,7 @@ workflows:
       - e2e-test:
           filters: *filters
           requires:
+            - upload-artifacts
             - build
       - slack/on-hold:
           context: slack-secrets
