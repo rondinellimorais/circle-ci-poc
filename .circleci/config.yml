@@ -87,8 +87,9 @@ workflows:
           type: approval
           filters: *filters
           requires:
-            - e2e-test
             - slack/on-hold
+            - upload-artifacts
+            - e2e-test
       - deploy:
           context: slack-secrets
           filters: *filters
