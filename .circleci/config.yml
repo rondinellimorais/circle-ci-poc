@@ -11,14 +11,12 @@ jobs:
       - image: cimg/node:14.17.0
     steps:
       - checkout
-      - run:
-          name: "Install dependencies"
-          command: yarn
-      
+      # - run:
+      #     name: "Install dependencies"
+      #     command: yarn
       - run:
           name: "Build for production"
           command: yarn build
-
       - persist_to_workspace:
           root: .
           paths:
@@ -28,9 +26,12 @@ jobs:
             - Dockerfile
             - Dockerfile
             - heroku.yml
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
 
   deploy:
-    executor: base
+    machine: true
     steps:
       - heroku/install
       - attach_workspace:
@@ -54,6 +55,9 @@ jobs:
       - run:
           name: "E2E Testing"
           command: "echo Hello, World!"
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
 
 workflows:
   pipeline:
