@@ -30,7 +30,7 @@ jobs:
             - heroku.yml
 
   deploy:
-    machine: true
+    executor: base
     steps:
       - heroku/install
       - attach_workspace:
