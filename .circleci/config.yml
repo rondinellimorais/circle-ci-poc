@@ -48,6 +48,13 @@ jobs:
           event: pass
           template: success_tagged_deploy_1
 
+  e2e-test:
+    machine: true
+    steps:
+      - run:
+          name: "E2E Testing"
+          command: "echo Hello, World!"
+
 workflows:
   pipeline:
     jobs:
@@ -56,20 +63,24 @@ workflows:
             branches:
               only:
                 - /^release\/[0-9]\.[0-9]\.[0-9]/
+      - e2e-test:
+          filters: *filters
+          requires:
+            - build
       - slack/on-hold:
           context: slack-secrets
           mentions: '<@U01A5Q0657U>, @rondinellimorais'
           filters: *filters
           requires:
             - build
-      - wait-for-approval:
+      - waiting-for-approval:
           type: approval
           filters: *filters
           requires:
-            - build
+            - e2e-test
             - slack/on-hold
       - deploy:
           context: slack-secrets
           filters: *filters
           requires:
-            - wait-for-approval
+            - waiting-for-approval
