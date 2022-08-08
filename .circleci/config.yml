@@ -68,7 +68,7 @@ workflows:
           filters: &filters
             branches:
               only:
-                - /^release\/[0-9]\.[0-9]\.[0-9]/
+                - /^release\/[0-9]\.[0-9]\.[0-9]-circleci/
       - upload-artifacts:
           filters: *filters
           requires:
