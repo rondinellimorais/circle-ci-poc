@@ -8,6 +8,7 @@
   1. Suporte ao mobile (ios e android)
   1. Boa documentação
   1. A config de notificação do slack se faz no arquivo yml
+  1. Interface intuitiva
 
 **Contras**
   1. Integração com slack para aprovação
@@ -20,6 +21,7 @@
   1. Edições no pipeline usando o Intellisense e o assistente de tarefa
   1. Boa documentação
   1. Aprovação do pipeline direto no slack sem necessidade de navegar até o portal
+  1. Interface intuitiva
 
 **Contras**
   1. A config de notificação no slack se faz através do app do azure pipeline no slack
