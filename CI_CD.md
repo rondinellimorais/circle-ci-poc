@@ -9,6 +9,7 @@
   1. Boa documentação
   1. A config de notificação do slack se faz no arquivo yml
   1. Interface intuitiva
+  1. Customização da mensagem do slack
 
 **Contras**
   1. Integração com slack para aprovação
@@ -25,3 +26,4 @@
 
 **Contras**
   1. A config de notificação no slack se faz através do app do azure pipeline no slack
+  1. Customização da mensagem do slack
