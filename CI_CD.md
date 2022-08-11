@@ -13,6 +13,7 @@
 
 **Contras**
   1. Integração com slack para aprovação
+  1. Possibilidade de definir timeout para os jobs e aprovações
 
 ## Azure Devops
 
@@ -23,6 +24,7 @@
   1. Boa documentação
   1. Aprovação do pipeline direto no slack sem necessidade de navegar até o portal
   1. Interface intuitiva
+  1. Possibilidade de definir timeout para os jobs e aprovações
 
 **Contras**
   1. A config de notificação no slack se faz através do app do azure pipeline no slack
