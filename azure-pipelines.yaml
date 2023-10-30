@@ -1,0 +1,96 @@
+# Node.js with React
+# Build a Node.js project that uses React.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
+
+trigger:
+- release/*-azure
+
+stages:
+- stage: Build
+  displayName: Build stage
+  jobs:
+    - job: Build
+      displayName: Build job
+      pool:
+        vmImage: ubuntu-latest
+      steps:
+      - task: NodeTool@0
+        inputs:
+          versionSpec: '14.17.0'
+        displayName: 'Install Node.js'
+
+      - script: yarn
+        displayName: 'Install dependencies'
+
+      - script: yarn build
+        displayName: 'Build for production'
+
+      - task: CmdLine@2
+        displayName: Fix heroku.yml name
+        inputs:
+          script: mv Heroku.yml heroku.yml
+
+      - task: CopyFiles@2
+        displayName: 'Store files'
+        inputs:
+          contents: |
+            build/**/*
+            Dockerfile
+            nginx.conf
+            default.conf.template
+            heroku.yml
+          TargetFolder: '$(Build.ArtifactStagingDirectory)'
+          CleanTargetFolder: true
+          OverWrite: true
+
+      - publish: $(Build.ArtifactStagingDirectory)
+        artifact: build_$(Build.BuildId)
+        displayName: 'Save files to deploy job'
+
+- stage: NotifyE2ETest
+  displayName: 'Notify e2e Test'
+  dependsOn: Build
+  condition: succeeded()
+  jobs:
+    - job: Test
+      displayName: 'Test job'
+      pool:
+        vmImage: ubuntu-latest
+      steps:
+      - script: |
+          echo Notificando os testes automatizados que o build está pronto para download
+        displayName: 'Notify e2e test'
+
+- stage: Deploy
+  displayName: Deploy
+  dependsOn: NotifyE2ETest
+  condition: succeeded()
+  jobs:
+    - deployment: publishinternal
+      displayName: 'Waiting for approval'
+      environment: slack-approvals
+
+    - job: Deploy
+      displayName: Deploy
+      pool:
+        vmImage: ubuntu-latest
+      steps:
+      - download: current
+        artifact: build_$(Build.BuildId)
+
+      - script: |
+          #!/bin/bash -eo pipefail
+          if [[ $(command -v heroku) == "" ]]; then
+            curl https://cli-assets.heroku.com/install.sh | sh
+          else
+            echo "Heroku is already installed. No operation was performed."
+          fi
+        displayName: 'Install Heroku CLI (if not installed)'
+
+      - script: |
+          cd $(Agent.BuildDirectory)/build_$(Build.BuildId)
+          heroku container:login
+          heroku container:push web -a ${HEROKU_APP_NAME}
+          heroku container:release web -a ${HEROKU_APP_NAME}
+        displayName: 'Deploy'
